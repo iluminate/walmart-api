@@ -3,9 +3,11 @@ package services
 import (
 	"reflect"
 	"testing"
+	"walmart-api/application/entities"
 	"walmart-api/application/models"
 	"walmart-api/application/services"
 	"walmart-api/application/storage"
+	"walmart-api/tests/mocks"
 )
 
 func TestNewProductService(t *testing.T) {
@@ -18,7 +20,10 @@ func TestNewProductService(t *testing.T) {
 		args args
 		want *services.ProductService
 	}{
-		// TODO: Add test cases.
+		{name: "create_instance_of_product_service", args: args{
+			productStorage:   nil,
+			promotionService: nil,
+		}, want: &services.ProductService{}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -34,7 +39,7 @@ func TestNewPromotionService(t *testing.T) {
 		name string
 		want *services.PromotionService
 	}{
-		// TODO: Add test cases.
+		{name: "create_instance_of_promotion_service", want: &services.PromotionService{}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -46,6 +51,17 @@ func TestNewPromotionService(t *testing.T) {
 }
 
 func TestProductService_FindBy(t *testing.T) {
+
+	mockProductStorage := new(mocks.MockProductStorage)
+	mockPromotionService := new(mocks.MockPromotionService)
+
+	mockProductStorage.On("FindBy", map[string]string{"brand": "ada"}).Return([]entities.Product{}, nil)
+	mockProductStorage.On("FindBy", map[string]string{"brand": "apa"}).Return([]entities.Product{
+		{Id: 1, Brand: "papa", Description: "", Image: "", Price: float64(230)}}, nil)
+	mockPromotionService.On("IsPalidrome", "ada").Return(true)
+	mockPromotionService.On("IsPalidrome", "apa").Return(true)
+	mockPromotionService.On("ToDiscountPalindrome", float64(230)).Return(float64(115))
+
 	type fields struct {
 		productStorage   storage.IProductStorage
 		promotionService services.IPromotionService
@@ -60,13 +76,29 @@ func TestProductService_FindBy(t *testing.T) {
 		want    []models.Product
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{name: "search_without_filters_no_match", fields: fields{
+			productStorage:   mockProductStorage,
+			promotionService: mockPromotionService,
+		}, args: args{filters: map[string]string{"brand": "ada"}}, want: nil, wantErr: false},
+		{name: "search_without_filters_with_results", fields: fields{
+			productStorage:   mockProductStorage,
+			promotionService: mockPromotionService,
+		}, args: args{filters: map[string]string{"brand": "apa"}}, want: []models.Product{
+			{
+				Id:          1,
+				Brand:       "papa",
+				Description: "",
+				Image:       "",
+				Price:       float64(230),
+				Discount:    float64(50),
+				Total:       float64(115),
+			}}, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service := &services.ProductService{
-				productStorage:   tt.fields.productStorage,
-				promotionService: tt.fields.promotionService,
+				ProductStorage:   tt.fields.productStorage,
+				PromotionService: tt.fields.promotionService,
 			}
 			got, err := service.FindBy(tt.args.filters)
 			if (err != nil) != tt.wantErr {
@@ -81,6 +113,14 @@ func TestProductService_FindBy(t *testing.T) {
 }
 
 func TestProductService_FindById(t *testing.T) {
+
+	mockProductStorage := new(mocks.MockProductStorage)
+
+	mockProductStorage.On("FindById", int64(1)).Return([]entities.Product{}, nil)
+	mockProductStorage.On("FindById", int64(2)).Return([]entities.Product{
+		{Id: 1, Brand: "", Description: "", Image: "", Price: float64(20)},
+	}, nil)
+
 	type fields struct {
 		productStorage   storage.IProductStorage
 		promotionService services.IPromotionService
@@ -95,13 +135,22 @@ func TestProductService_FindById(t *testing.T) {
 		want    []models.Product
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{name: "search_by_id_exist", fields: fields{
+			productStorage:   mockProductStorage,
+			promotionService: nil,
+		}, args: args{id: 2}, want: []models.Product{
+			{Id: 1, Brand: "", Description: "", Image: "", Price: float64(20)},
+		}, wantErr: false},
+		{name: "search_by_id_no_exist", fields: fields{
+			productStorage:   mockProductStorage,
+			promotionService: nil,
+		}, args: args{id: 1}, want: nil, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service := &services.ProductService{
-				productStorage:   tt.fields.productStorage,
-				promotionService: tt.fields.promotionService,
+				ProductStorage:   tt.fields.productStorage,
+				PromotionService: tt.fields.promotionService,
 			}
 			got, err := service.FindById(tt.args.id)
 			if (err != nil) != tt.wantErr {
@@ -124,7 +173,9 @@ func TestPromotionService_IsPalidrome(t *testing.T) {
 		args args
 		want bool
 	}{
-		// TODO: Add test cases.
+		{name: "verify_palindrome_true", args: args{"abba"}, want: true},
+		{name: "verify_palindrome_false", args: args{"ssds"}, want: false},
+		{name: "verify_palindrome_with_word_empty", args: args{""}, want: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -145,7 +196,7 @@ func TestPromotionService_ToDiscountPalindrome(t *testing.T) {
 		args args
 		want float64
 	}{
-		// TODO: Add test cases.
+		{name: "apply_discount_palindrome_success", args: args{price: float64(100)}, want: float64(50)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

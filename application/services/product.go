@@ -6,16 +6,16 @@ import (
 )
 
 type ProductService struct {
-	productStorage   storage.IProductStorage
-	promotionService IPromotionService
+	ProductStorage   storage.IProductStorage
+	PromotionService IPromotionService
 }
 
 func NewProductService(productStorage storage.IProductStorage, promotionService IPromotionService) *ProductService {
-	return &ProductService{productStorage: productStorage, promotionService: promotionService}
+	return &ProductService{ProductStorage: productStorage, PromotionService: promotionService}
 }
 
 func (service *ProductService) FindById(id int64) ([]models.Product, error) {
-	products, err := service.productStorage.FindById(id)
+	products, err := service.ProductStorage.FindById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +35,11 @@ func (service *ProductService) FindById(id int64) ([]models.Product, error) {
 func (service *ProductService) FindBy(filters map[string]string) ([]models.Product, error) {
 	isPromotionPalindrome := false
 	for _, v := range filters {
-		if service.promotionService.IsPalidrome(v) {
+		if service.PromotionService.IsPalidrome(v) {
 			isPromotionPalindrome = true
 		}
 	}
-	products, err := service.productStorage.FindBy(filters)
+	products, err := service.ProductStorage.FindBy(filters)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (service *ProductService) FindBy(filters map[string]string) ([]models.Produ
 		var discount, total float64
 		if isPromotionPalindrome {
 			discount = discountRatePalindrome
-			total = service.promotionService.ToDiscountPalindrome(product.Price)
+			total = service.PromotionService.ToDiscountPalindrome(product.Price)
 		}
 		result = append(result, models.Product{
 			Id:          product.Id,
