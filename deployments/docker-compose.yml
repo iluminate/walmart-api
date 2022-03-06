@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  walmart-api:
+    image: kevin24ec/walmart-api:1.0.0
+    container_name: walmart-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
