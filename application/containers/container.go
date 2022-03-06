@@ -3,6 +3,7 @@ package containers
 import (
 	"walmart-api/application/handlers"
 	"walmart-api/application/services"
+	"walmart-api/application/storage"
 )
 
 func ProductHandler() *handlers.ProductHandler {
@@ -10,5 +11,9 @@ func ProductHandler() *handlers.ProductHandler {
 }
 
 func ProductService() services.IProductService {
-	return services.NewProductService()
+	return services.NewProductService(ProductStorage())
+}
+
+func ProductStorage() storage.IProductStorage {
+	return storage.NewProductStorage()
 }
