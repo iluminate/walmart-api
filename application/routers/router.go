@@ -22,6 +22,7 @@ func (httpRouter *httpRouter) Handler() *gin.Engine {
 	router.GET("/", func(context *gin.Context) {
 		context.String(http.StatusOK, "api is up!")
 	})
-	router.GET("/api/v1/products/:id", httpRouter.productHandler.Find)
+	router.GET("/api/v1/products/:id", httpRouter.productHandler.FindById)
+	router.GET("/api/v1/products", httpRouter.productHandler.FindBy)
 	return router
 }

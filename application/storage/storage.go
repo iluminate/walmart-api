@@ -5,5 +5,6 @@ import "walmart-api/application/entities"
 const collectionProducts = "products"
 
 type IProductStorage interface {
-	Find(id int64) ([]entities.Product, error)
+	FindById(id int64) ([]entities.Product, error)
+	FindBy(filters map[string]string) ([]entities.Product, error)
 }

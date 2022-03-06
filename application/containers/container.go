@@ -17,7 +17,11 @@ func ProductHandler() *handlers.ProductHandler {
 }
 
 func ProductService() services.IProductService {
-	return services.NewProductService(ProductStorage())
+	return services.NewProductService(ProductStorage(), PromotionService())
+}
+
+func PromotionService() services.IPromotionService {
+	return services.NewPromotionService()
 }
 
 func ProductStorage() storage.IProductStorage {
