@@ -13,8 +13,11 @@ func NewProductService(productStorage storage.IProductStorage) *ProductService {
 	return &ProductService{productStorage: productStorage}
 }
 
-func (service *ProductService) Find(id string) []models.Product {
-	products := service.productStorage.Find(id)
+func (service *ProductService) Find(id int64) ([]models.Product, error) {
+	products, err := service.productStorage.Find(id)
+	if err != nil {
+		return nil, err
+	}
 	var result []models.Product
 	for _, product := range products {
 		result = append(result, models.Product{
@@ -25,5 +28,5 @@ func (service *ProductService) Find(id string) []models.Product {
 			Price:       product.Price,
 		})
 	}
-	return result
+	return result, nil
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"walmart-api/application/services"
 )
 
@@ -15,7 +16,10 @@ func NewProductHandler(productService services.IProductService) *ProductHandler 
 }
 
 func (handler *ProductHandler) Find(c *gin.Context) {
-	id := c.Param("id")
-	products := handler.productService.Find(id)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "invalid id field")
+	}
+	products, _ := handler.productService.Find(id)
 	c.JSON(http.StatusOK, products)
 }

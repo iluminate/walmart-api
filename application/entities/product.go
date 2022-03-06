@@ -1,9 +1,9 @@
 package entities
 
 type Product struct {
-	Id          int    `json:"id"`
-	Brand       string `json:"brand"`
-	Description string `json:"description"`
-	Image       string `json:"image"`
-	Price       int    `json:"price"`
+	Id          int    `bson:"id"`
+	Brand       string `bson:"brand"`
+	Description string `bson:"description"`
+	Image       string `bson:"image"`
+	Price       int    `bson:"price"`
 }
